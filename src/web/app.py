@@ -24,7 +24,7 @@ def create_ui():
     with gr.Blocks(title="Auralith Visualizer") as demo:
         # --- Header ---
         with gr.Row(elem_classes=["header"]):
-            gr.Markdown("## 🎹 Auralith Visualizer", elem_id="logo")
+            gr.Markdown("## 🎬 Auralith Visualizer", elem_id="logo")
             with gr.Column(scale=3):
                 progress_bar = gr.Slider(label="Rendering Progress", value=0, interactive=False, elem_classes=["glowing-progress"])
         
