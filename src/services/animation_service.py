@@ -1,0 +1,87 @@
+"""Animation Service to encapsulate the business logic for video generation."""
+
+import logging
+import os
+import threading
+import time
+from typing import Optional, Dict, Any
+
+from src.scripts.animate import generate_animation_scene
+from src.web.log_stream import LogStream
+from PIL import Image
+
+logger = logging.getLogger(__name__)
+
+class AnimationService:
+    """
+    Service that encapsulates animation generation.
+    Orchestrates the web interface and the AI engine.
+    """
+
+    def __init__(self, output_dir: str = "outputs/animations"):
+        self.output_dir = output_dir
+        os.makedirs(self.output_dir, exist_ok=True)
+        self._lock = threading.Lock()
+
+    def generate_animation(
+        self,
+        config: Dict[str, Any],
+        log_stream: Optional[LogStream] = None
+    ) -> Dict[str, Any]:
+        """
+        Executes the animation generation pipeline with log streaming.
+        Ensures only one animation is generated at a time.
+        """
+        def _log(message: str, level: str = "INFO"):
+            logger.info(f"[SERVICE] {message}")
+            if log_stream:
+                log_stream.log(message, level)
+
+        with self._lock:
+            start_time = time.time()
+            try:
+                project_name = config.get('name', 'Unnamed_Animation')
+                prompt = config.get('prompt')
+                image_path = config.get('image_path')
+
+                if not all([prompt, image_path]):
+                    raise ValueError("Prompt and image are required.")
+
+                _log(f"Starting animation process for project: {project_name}")
+                _log(f"Input parameters: {config}")
+
+                input_image = Image.open(image_path).convert("RGB")
+                
+                timestamp = time.strftime("%Y%m%d_%H%M%S")
+                output_filename = f"{timestamp}_{project_name.replace(' ', '_')}.mp4"
+                output_path = os.path.join(self.output_dir, output_filename)
+
+                # This will be a blocking call
+                generate_animation_scene(
+                    prompt=prompt,
+                    input_image=input_image,
+                    output_path=output_path
+                )
+
+                end_time = time.time()
+                processing_time = time.strftime("%H:%M:%S", time.gmtime(end_time - start_time))
+
+                _log(f"Total processing time: {processing_time}")
+                _log(f"Success! Animation saved to: {os.path.basename(output_path)}")
+
+                return {
+                    "success": True,
+                    "file_path": output_path,
+                    "error": None
+                }
+
+            except Exception as e:
+                error_msg = f"Processing failure: {str(e)}"
+                _log(error_msg, level="ERROR")
+                logger.error(f"[SERVICE] {error_msg}", exc_info=True)
+
+                return {
+                    "success": False,
+                    "file_path": None,
+                    "error": error_msg
+                }
