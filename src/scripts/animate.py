@@ -5,7 +5,7 @@ import os
 import cv2
 import numpy as np
 
-def export_to_video(frames, output_path, fps=8):
+def export_to_video(frames, output_path, fps=12):
     """Exports a list of PIL Images to a video file."""
     print(f"Exporting video to {output_path}...")
     if not frames:
@@ -35,7 +35,7 @@ def export_to_video(frames, output_path, fps=8):
     print("Video saved successfully.")
 
 def generate_animation_scene(prompt, input_image, output_path):
-    """Generates a single animation scene."""
+    """Generates a single animation scene in chunks to create a longer video."""
     # 0. Setup
     device = "cuda" if torch.cuda.is_available() else "cpu"
     dtype = torch.float16 if device == "cuda" else torch.float32
@@ -48,32 +48,48 @@ def generate_animation_scene(prompt, input_image, output_path):
 
     # 2. Load IP-Adapter
     pipe.load_ip_adapter("h94/IP-Adapter", subfolder="models", weight_name="ip-adapter_sd15.bin")
-    pipe.set_ip_adapter_scale(0.95)
+    pipe.set_ip_adapter_scale(0.7) # Adjusted for better prompt adherence
 
-    # 3. Optimizations for performance
+    # 3. Optimizations
     pipe.enable_vae_slicing()
     if device == "cuda":
         pipe.enable_model_cpu_offload()
 
-    # 4. Define a negative prompt
-    negative_prompt = "bad quality, worse quality, low resolution, blurry, noisy, distorted"
+    # 4. Define a detailed negative prompt
+    negative_prompt = "bad quality, worse quality, low resolution, blurry, noisy, distorted, ugly, tiling, poorly drawn hands, poorly drawn feet, poorly drawn face, out of frame, extra limbs, disfigured, deformed, body out of frame, bad anatomy, watermark, signature, cut off, low contrast, underexposed, overexposed, bad art, beginner, amateur, distorted face"
 
-    # 5. Generate animation frames
+    # 5. Generate animation frames in chunks
     print(f"Generating animation with prompt: '{prompt}'")
     generator = torch.Generator("cpu" if device == "cuda" else device).manual_seed(42)
     
-    output = pipe(
-        prompt=prompt,
-        negative_prompt=negative_prompt,
-        ip_adapter_image=input_image,
-        num_frames=16,
-        guidance_scale=7.5,
-        num_inference_steps=30,
-        generator=generator,
-        width=1024,
-        height=576,
-    )
-    frames = output.frames[0]
+    total_frames = 160  # Target total frames for a longer video
+    frames_per_chunk = 16 # Number of frames per generation step
+    all_frames = []
     
-    # 6. Export frames to a video file
-    export_to_video(frames, output_path)
+    current_image = input_image
+
+    for i in range(total_frames // frames_per_chunk):
+        print(f"Generating chunk {i+1}/{total_frames // frames_per_chunk}...")
+        output = pipe(
+            prompt=prompt,
+            negative_prompt=negative_prompt,
+            ip_adapter_image=current_image,
+            num_frames=frames_per_chunk,
+            guidance_scale=7.5,
+            num_inference_steps=40, # Increased for better quality
+            generator=generator,
+            width=1024,
+            height=576,
+        )
+        chunk_frames = output.frames[0]
+        all_frames.extend(chunk_frames)
+        
+        # Use the last frame of the current chunk as the input for the next
+        current_image = chunk_frames[-1]
+
+
+    # 6. Export all collected frames to a single video file
+    if all_frames:
+        export_to_video(all_frames, output_path, fps=12) # Increased FPS
+    else:
+        print("Warning: No frames were generated.")

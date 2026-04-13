@@ -51,7 +51,7 @@ def create_ui():
                         status_output = gr.Textbox(label="AI Engine Status", lines=15, interactive=False, elem_classes=["terminal-box"])
                         with gr.Row():
                             file_output = gr.File(label="Download Video", visible=False)
-                            video_preview = gr.Video(label="Animation Preview", visible=False)
+                            video_preview = gr.Video(label="Animation Preview", visible=False, format="mp4")
 
         # --- Footer / Main Actions ---
         with gr.Row():
