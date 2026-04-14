@@ -7,6 +7,7 @@ import logging
 import os
 import threading
 import time
+import base64
 from src.services.animation_service import AnimationService
 from src.web.log_stream import LogStream
 from src.web.ui_theme import auralith_theme, custom_css
@@ -18,13 +19,29 @@ logger = logging.getLogger(__name__)
 # --- Service Initialization ---
 animation_service = AnimationService(output_dir="outputs/animations")
 
+# --- Helper Functions ---
+def get_video_html(video_path):
+    """Encodes video to Base64 and returns an HTML video tag."""
+    if not os.path.exists(video_path):
+        return "<div>Video not found.</div>"
+    
+    with open(video_path, "rb") as video_file:
+        encoded_string = base64.b64encode(video_file.read()).decode()
+    
+    return f"""
+    <video width="100%" height="auto" controls autoplay muted loop>
+        <source src="data:video/mp4;base64,{encoded_string}" type="video/mp4">
+        Your browser does not support the video tag.
+    </video>
+    """
+
 # --- UI DEFINITION ---
 def create_ui():
     """Builds the Gradio Blocks UI for Auralith Visualizer."""
     with gr.Blocks(title="Auralith Visualizer") as demo:
         # --- Header ---
         with gr.Row(elem_classes=["header"]):
-            gr.Markdown("## 🎹 Auralith Visualizer", elem_id="logo")
+            gr.Markdown("## 🎬 Auralith Visualizer", elem_id="logo")
             with gr.Column(scale=3):
                 progress_bar = gr.Slider(label="Rendering Progress", value=0, interactive=False, elem_classes=["glowing-progress"])
         
@@ -51,7 +68,7 @@ def create_ui():
                         status_output = gr.Textbox(label="AI Engine Status", lines=15, interactive=False, elem_classes=["terminal-box"])
                         with gr.Row():
                             file_output = gr.File(label="Download Video", visible=False)
-                            video_preview = gr.Video(label="Animation Preview", visible=False)
+                            video_preview = gr.HTML(label="Animation Preview", visible=False)
 
         # --- Footer / Main Actions ---
         with gr.Row():
@@ -115,12 +132,13 @@ def create_ui():
 
             # Final UI update
             if result and result["success"]:
+                video_html = get_video_html(result["file_path"])
                 log_history.append(f"✅ Generation successful! Output: {result['file_path']}")
                 yield {
                     tabs: gr.update(selected=1),
                     status_output: "\n".join(log_history),
                     file_output: gr.update(value=result["file_path"], visible=True),
-                    video_preview: gr.update(value=result["file_path"], visible=True),
+                    video_preview: gr.update(value=video_html, visible=True),
                     generate_btn: gr.update(interactive=True, value="🚀 GENERATE"),
                     clear_btn: gr.update(interactive=True),
                     progress_bar: gr.update(value=1, label="Rendering Complete")
@@ -151,7 +169,7 @@ def create_ui():
                 image_upload: None,
                 status_output: "",
                 file_output: gr.update(visible=False),
-                video_preview: gr.update(visible=False),
+                video_preview: gr.update(value=None, visible=False),
                 progress_bar: gr.update(value=0, label="Rendering Progress"),
             }
 
