@@ -44,13 +44,15 @@ class AnimationService:
                 prompt = config.get('prompt')
                 image_path = config.get('image_path')
 
-                if not all([prompt, image_path]):
-                    raise ValueError("Prompt and image are required.")
+                if not prompt:
+                    raise ValueError("A prompt is required.")
 
                 _log(f"Starting animation process for project: {project_name or 'Unnamed'}")
                 _log(f"Input parameters: {config}")
 
-                input_image = Image.open(image_path).convert("RGB")
+                input_image = None
+                if image_path:
+                    input_image = Image.open(image_path).convert("RGB")
                 
                 timestamp = time.strftime("%Y%m%d_%H%M%S")
                 
@@ -61,7 +63,6 @@ class AnimationService:
 
                 output_path = os.path.join(self.output_dir, output_filename)
 
-                # This will be a blocking call
                 generate_animation_scene(
                     prompt=prompt,
                     input_image=input_image,

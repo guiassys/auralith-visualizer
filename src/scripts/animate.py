@@ -73,8 +73,13 @@ def generate_animation_scene(prompt, input_image, output_path, log_stream: Optio
     pipe = AnimateDiffPipeline.from_pretrained(model_id, motion_adapter=adapter, torch_dtype=dtype)
     pipe.scheduler = EulerDiscreteScheduler.from_config(pipe.scheduler.config, beta_schedule="linear", timestep_spacing="linspace")
 
-    pipe.load_ip_adapter("h94/IP-Adapter", subfolder="models", weight_name="ip-adapter_sd15.bin")
-    pipe.set_ip_adapter_scale(ip_adapter_scale)
+    if input_image:
+        _log("IP-Adapter enabled.")
+        pipe.load_ip_adapter("h94/IP-Adapter", subfolder="models", weight_name="ip-adapter_sd15.bin")
+        pipe.set_ip_adapter_scale(ip_adapter_scale)
+    else:
+        _log("No initial image provided. IP-Adapter will be disabled.")
+
 
     pipe.enable_vae_slicing()
     if device == "cuda":
@@ -90,21 +95,27 @@ def generate_animation_scene(prompt, input_image, output_path, log_stream: Optio
 
     for i in range(total_frames // frames_per_chunk):
         _log(f"Generating chunk {i+1}/{total_frames // frames_per_chunk}...")
-        output = pipe(
-            prompt=prompt,
-            negative_prompt=negative_prompt,
-            ip_adapter_image=current_image,
-            num_frames=frames_per_chunk,
-            guidance_scale=guidance_scale,
-            num_inference_steps=num_inference_steps,
-            generator=generator,
-            width=width,
-            height=height,
-        )
+        
+        pipe_kwargs = {
+            "prompt": prompt,
+            "negative_prompt": negative_prompt,
+            "num_frames": frames_per_chunk,
+            "guidance_scale": guidance_scale,
+            "num_inference_steps": num_inference_steps,
+            "generator": generator,
+            "width": width,
+            "height": height,
+        }
+
+        if current_image:
+            pipe_kwargs["ip_adapter_image"] = current_image
+
+        output = pipe(**pipe_kwargs)
         chunk_frames = output.frames[0]
         all_frames.extend(chunk_frames)
         
-        current_image = chunk_frames[-1]
+        if current_image:
+            current_image = chunk_frames[-1]
 
     if all_frames:
         export_to_video(all_frames, output_path, fps=fps, log_stream=log_stream)

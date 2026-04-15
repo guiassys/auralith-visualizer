@@ -75,7 +75,7 @@ def create_ui():
                         with gr.Group():
                             name_input = gr.Textbox(label="Project Name", placeholder="e.g., Angel_Animation")
                             prompt_input = gr.Textbox(label="Scene Prompt", placeholder="e.g., A beautiful angel flying through the clouds", lines=3)
-                            image_upload = gr.Image(label="Upload Initial Image", type="filepath")
+                            image_upload = gr.Image(label="Upload Initial Image (Optional)", type="filepath")
 
                     # --- Tab 2: Studio Console & Output ---
                     with gr.TabItem("🖥️ Studio Console", id=1):
@@ -92,11 +92,11 @@ def create_ui():
         # --- Event Handling & Logic ---
         def run_generation(name, prompt, image):
             """Handles the animation generation process and UI updates."""
-            if not prompt or not image:
-                gr.Warning("Prompt and image are required.")
+            if not prompt:
+                gr.Warning("A prompt is required to generate an animation.")
                 yield {
                     tabs: gr.update(selected=0),
-                    status_output: "Error: Prompt and image are required.",
+                    status_output: "Error: A prompt is required.",
                     generate_btn: gr.update(interactive=True),
                     clear_btn: gr.update(interactive=True),
                 }
