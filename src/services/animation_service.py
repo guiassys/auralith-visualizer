@@ -65,7 +65,8 @@ class AnimationService:
                 generate_animation_scene(
                     prompt=prompt,
                     input_image=input_image,
-                    output_path=output_path
+                    output_path=output_path,
+                    log_stream=log_stream
                 )
 
                 end_time = time.time()

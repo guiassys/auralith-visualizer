@@ -8,7 +8,7 @@
     },
     "output_directory": "outputs/animations",
     "animation_settings": {
-        "total_frames": 160,
+        "total_frames": 32,
         "frames_per_chunk": 16,
         "guidance_scale": 7.5,
         "num_inference_steps": 40,
