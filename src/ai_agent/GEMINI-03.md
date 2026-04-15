@@ -57,7 +57,7 @@ Refactor the existing system to achieve the following objectives:
 
 - **Requirement:** The system must handle cases where the user does not provide a name.
 - **Behavior:**
-    - If a name is provided: `<timestamp>_<name>_v01_gen.wav`
+    - If a name is provided: `<name>.wav`
     - If no name is provided: `<timestamp>_v01_gen.wav`
 - **Example (no name):** `20260415_014100_v01_gen.wav`
 

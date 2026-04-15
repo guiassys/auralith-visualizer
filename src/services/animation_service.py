@@ -55,7 +55,7 @@ class AnimationService:
                 timestamp = time.strftime("%Y%m%d_%H%M%S")
                 
                 if project_name:
-                    output_filename = f"{timestamp}_{project_name.replace(' ', '_')}_v01_gen.mp4"
+                    output_filename = f"{project_name}.mp4"
                 else:
                     output_filename = f"{timestamp}_v01_gen.mp4"
 
