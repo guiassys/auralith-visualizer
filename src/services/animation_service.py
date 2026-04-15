@@ -18,7 +18,7 @@ class AnimationService:
     Orchestrates the web interface and the AI engine.
     """
 
-    def __init__(self, output_dir: str = "outputs/animations"):
+    def __init__(self, output_dir: str):
         self.output_dir = output_dir
         os.makedirs(self.output_dir, exist_ok=True)
         self._lock = threading.Lock()
@@ -40,20 +40,25 @@ class AnimationService:
         with self._lock:
             start_time = time.time()
             try:
-                project_name = config.get('name', 'Unnamed_Animation')
+                project_name = config.get('name')
                 prompt = config.get('prompt')
                 image_path = config.get('image_path')
 
                 if not all([prompt, image_path]):
                     raise ValueError("Prompt and image are required.")
 
-                _log(f"Starting animation process for project: {project_name}")
+                _log(f"Starting animation process for project: {project_name or 'Unnamed'}")
                 _log(f"Input parameters: {config}")
 
                 input_image = Image.open(image_path).convert("RGB")
                 
                 timestamp = time.strftime("%Y%m%d_%H%M%S")
-                output_filename = f"{timestamp}_{project_name.replace(' ', '_')}.mp4"
+                
+                if project_name:
+                    output_filename = f"{timestamp}_{project_name.replace(' ', '_')}_v01_gen.mp4"
+                else:
+                    output_filename = f"{timestamp}_v01_gen.mp4"
+
                 output_path = os.path.join(self.output_dir, output_filename)
 
                 # This will be a blocking call

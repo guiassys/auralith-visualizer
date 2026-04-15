@@ -52,7 +52,7 @@ python3 -m venv .venv
 source .venv/bin/activate
 python -m pip install --upgrade pip
 python -m pip install -r requirements.txt
-python src/web/app.py
+python run_web.py
 ```
 
 ## Quick Installation

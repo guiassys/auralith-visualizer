@@ -8,6 +8,7 @@ import os
 import threading
 import time
 import base64
+import json
 from src.services.animation_service import AnimationService
 from src.web.log_stream import LogStream
 from src.web.ui_theme import auralith_theme, custom_css
@@ -16,8 +17,21 @@ from src.web.ui_theme import auralith_theme, custom_css
 logging.basicConfig(level=logging.INFO, format='%(asctime)s - %(levelname)s - %(message)s')
 logger = logging.getLogger(__name__)
 
+# --- Load Configuration ---
+def load_config():
+    """Loads the application configuration from config.json."""
+    try:
+        with open("config.json", "r") as f:
+            return json.load(f)
+    except FileNotFoundError:
+        logger.warning("config.json not found. Using default settings.")
+        return {"output_directory": "outputs/animations"}
+
+config = load_config()
+output_dir = config.get("output_directory", "outputs/animations")
+
 # --- Service Initialization ---
-animation_service = AnimationService(output_dir="outputs/animations")
+animation_service = AnimationService(output_dir=output_dir)
 
 # --- Helper Functions ---
 def get_video_html(video_path):
@@ -100,14 +114,14 @@ def create_ui():
             log_stream = LogStream()
             log_history = []
             
-            config = {
+            gen_config = {
                 "name": name, "prompt": prompt, "image_path": image
             }
 
             generation_task_result = {"result": None}
             def generation_task():
                 try:
-                    result = animation_service.generate_animation(config=config, log_stream=log_stream)
+                    result = animation_service.generate_animation(config=gen_config, log_stream=log_stream)
                     generation_task_result["result"] = result
                 finally:
                     log_stream.end()

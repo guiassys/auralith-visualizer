@@ -7,5 +7,6 @@
         "chunk_duration": 10,
         "overlap_duration": 2,
         "fade-out_duration": 2
-    }
+    },
+    "output_directory": "outputs/animations"
 }
