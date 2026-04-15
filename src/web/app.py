@@ -76,6 +76,9 @@ def create_ui():
                             name_input = gr.Textbox(label="Project Name", placeholder="e.g., Angel_Animation")
                             prompt_input = gr.Textbox(label="Scene Prompt", placeholder="e.g., A beautiful angel flying through the clouds", lines=3)
                             image_upload = gr.Image(label="Upload Initial Image (Optional)", type="filepath")
+                            with gr.Row():
+                                clear_btn = gr.Button("🗑️ Clear Inputs")
+                                generate_btn = gr.Button("🚀 GENERATE", variant="primary")
 
                     # --- Tab 2: Studio Console & Output ---
                     with gr.TabItem("🖥️ Studio Console", id=1):
@@ -83,11 +86,6 @@ def create_ui():
                         with gr.Row():
                             file_output = gr.File(label="Download Video", visible=False)
                             video_preview = gr.HTML(label="Animation Preview", visible=False)
-
-        # --- Footer / Main Actions ---
-        with gr.Row():
-            clear_btn = gr.Button("🗑️ Clear Inputs")
-            generate_btn = gr.Button("🚀 GENERATE", variant="primary")
 
         # --- Event Handling & Logic ---
         def run_generation(name, prompt, image):
