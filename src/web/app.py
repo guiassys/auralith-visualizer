@@ -60,13 +60,6 @@ def create_ui():
                 progress_bar = gr.Slider(label="Rendering Progress", value=0, interactive=False, elem_classes=["glowing-progress"])
         
         with gr.Row():
-            # --- Sidebar ---
-            with gr.Column(scale=1, min_width=100):
-                gr.Markdown("### 🛠️ Tools")
-                gr.Button("Studio", variant="primary")
-                gr.Button("About")
-                gr.Button("Help")
-
             # --- Main Workspace ---
             with gr.Column(scale=5):
                 with gr.Tabs() as tabs:
@@ -86,6 +79,13 @@ def create_ui():
                         with gr.Row():
                             file_output = gr.File(label="Download Video", visible=False)
                             video_preview = gr.HTML(label="Animation Preview", visible=False)
+            
+            # --- Sidebar ---
+            with gr.Column(scale=1, min_width=100):
+                gr.Markdown("### 🛠️ Tools")
+                animation_definitions_btn = gr.Button("Animation Definitions")
+                studio_console_btn = gr.Button("Studio Console")
+
 
         # --- Event Handling & Logic ---
         def run_generation(name, prompt, image):
@@ -188,6 +188,10 @@ def create_ui():
         clear_btn.click(fn=clear_form, outputs=[
             name_input, prompt_input, image_upload, status_output, file_output, video_preview, progress_bar
         ])
+
+        animation_definitions_btn.click(lambda: gr.update(selected=0), None, tabs)
+        studio_console_btn.click(lambda: gr.update(selected=1), None, tabs)
+
 
     return demo
 
