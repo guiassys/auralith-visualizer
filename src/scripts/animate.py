@@ -4,15 +4,8 @@ from PIL import Image
 import os
 import cv2
 import numpy as np
-import json
-from typing import Optional
+from typing import Optional, Dict, Any
 from src.web.log_stream import LogStream
-
-def load_config():
-    """Loads the configuration from config.json."""
-    config_path = os.path.join(os.path.dirname(__file__), '..', '..', 'config.json')
-    with open(config_path, 'r') as f:
-        return json.load(f)
 
 def export_to_video(frames, output_path, fps, log_stream: Optional[LogStream] = None):
     """Exports a list of PIL Images to a video file."""
@@ -28,6 +21,7 @@ def export_to_video(frames, output_path, fps, log_stream: Optional[LogStream] = 
 
     first_frame = frames[0]
     width, height = first_frame.size
+    # Video codecs often require even dimensions
     if width % 2 != 0: width -= 1
     if height % 2 != 0: height -= 1
 
@@ -37,6 +31,7 @@ def export_to_video(frames, output_path, fps, log_stream: Optional[LogStream] = 
         raise IOError(f"Could not open video writer for path {output_path}.")
 
     for frame in frames:
+        # Resize frame if it doesn't match the writer's dimensions
         if frame.size != (width, height):
             frame = frame.resize((width, height), Image.Resampling.LANCZOS)
         
@@ -46,40 +41,49 @@ def export_to_video(frames, output_path, fps, log_stream: Optional[LogStream] = 
     writer.release()
     _log("Video saved successfully.")
 
-def generate_animation_scene(prompt, input_image, output_path, log_stream: Optional[LogStream] = None):
-    """Generates a single animation scene in chunks to create a longer video."""
+def generate_animation_scene(
+    prompt: str,
+    input_image: Optional[Image.Image],
+    output_path: str,
+    log_stream: Optional[LogStream] = None,
+    animation_settings: Optional[Dict[str, Any]] = None,
+    generator_settings: Optional[Dict[str, Any]] = None # Keep for future use
+):
+    """Generates a single animation scene using parameters passed from the service."""
     def _log(message):
         print(message)
         if log_stream:
             log_stream.log(message)
 
-    config = load_config()
-    anim_config = config.get('animation_settings', {})
-    
-    total_frames = anim_config.get('total_frames', 160)
-    frames_per_chunk = anim_config.get('frames_per_chunk', 16)
-    guidance_scale = anim_config.get('guidance_scale', 7.5)
-    num_inference_steps = anim_config.get('num_inference_steps', 40)
-    width = anim_config.get('width', 1024)
-    height = anim_config.get('height', 576)
-    fps = anim_config.get('fps', 12)
-    ip_adapter_scale = anim_config.get('ip_adapter_scale', 0.7)
+    # Use provided settings or default to an empty dict
+    anim_config = animation_settings or {}
+
+    # Extract parameters from the settings dictionary with default values
+    total_frames = int(anim_config.get('total_frames', 160))
+    frames_per_chunk = int(anim_config.get('frames_per_chunk', 16))
+    guidance_scale = float(anim_config.get('guidance_scale', 7.5))
+    num_inference_steps = int(anim_config.get('num_inference_steps', 40))
+    width = int(anim_config.get('width', 1024))
+    height = int(anim_config.get('height', 576))
+    fps = int(anim_config.get('fps', 12))
+    ip_adapter_scale = float(anim_config.get('ip_adapter_scale', 0.7))
 
     device = "cuda" if torch.cuda.is_available() else "cpu"
     dtype = torch.float16 if device == "cuda" else torch.float32
     
+    _log("Loading motion adapter...")
     adapter = MotionAdapter.from_pretrained("guoyww/animatediff-motion-adapter-v1-5-2", torch_dtype=dtype)
+    _log("Loading diffusion pipeline...")
     model_id = "emilianJR/epiCRealism"
     pipe = AnimateDiffPipeline.from_pretrained(model_id, motion_adapter=adapter, torch_dtype=dtype)
     pipe.scheduler = EulerDiscreteScheduler.from_config(pipe.scheduler.config, beta_schedule="linear", timestep_spacing="linspace")
 
     if input_image:
-        _log("IP-Adapter enabled.")
+        _log("IP-Adapter enabled. Loading IP-Adapter weights...")
         pipe.load_ip_adapter("h94/IP-Adapter", subfolder="models", weight_name="ip-adapter_sd15.bin")
         pipe.set_ip_adapter_scale(ip_adapter_scale)
     else:
         _log("No initial image provided. IP-Adapter will be disabled.")
-
 
     pipe.enable_vae_slicing()
     if device == "cuda":
@@ -92,9 +96,11 @@ def generate_animation_scene(prompt, input_image, output_path, log_stream: Optio
     
     all_frames = []
     current_image = input_image
+    
+    num_chunks = max(1, total_frames // frames_per_chunk)
 
-    for i in range(total_frames // frames_per_chunk):
-        _log(f"Generating chunk {i+1}/{total_frames // frames_per_chunk}...")
+    for i in range(num_chunks):
+        _log(f"Generating chunk {i+1}/{num_chunks}...")
         
         pipe_kwargs = {
             "prompt": prompt,
@@ -114,6 +120,7 @@ def generate_animation_scene(prompt, input_image, output_path, log_stream: Optio
         chunk_frames = output.frames[0]
         all_frames.extend(chunk_frames)
         
+        # Use the last frame of the current chunk as the starting image for the next
         if current_image:
             current_image = chunk_frames[-1]
 
