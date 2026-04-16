@@ -74,7 +74,7 @@ Access the interface at: http://localhost:7860
 - Write a descriptive prompt for the scene (e.g., "A beautiful angel flying through the clouds").
 - Upload an initial image to guide the animation.
 - Click "GENERATE".
-- Track the progress in the "Studio Console" tab.
+- Track the progress in the "Console" tab.
 - Download the generated video file once completed.
 
 ## Result

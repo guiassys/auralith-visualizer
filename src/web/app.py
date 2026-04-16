@@ -88,9 +88,7 @@ def create_ui():
                             name_input = gr.Textbox(label="Project Name", placeholder="e.g., Angel_Animation")
                             prompt_input = gr.Textbox(label="Scene Prompt", placeholder="e.g., A beautiful angel flying through the clouds", lines=3)
                             image_upload = gr.Image(label="Upload Initial Image (Optional)", type="filepath")
-                            with gr.Row():
-                                clear_btn = gr.Button("🗑️ Clear Inputs")
-                                generate_btn = gr.Button("🚀 GENERATE", variant="primary")
+                            # Buttons are now moved outside this tab
 
                     # --- Tab 2: Settings ---
                     with gr.TabItem("⚙️ Settings", id=1):
@@ -117,19 +115,24 @@ def create_ui():
                         output_directory_input = gr.Textbox(label="Output Directory", value=config["output_directory"])
 
 
-                    # --- Tab 3: Studio Console & Output ---
-                    with gr.TabItem("🖥️ Studio Console", id=2):
+                    # --- Tab 3: Console & Output ---
+                    with gr.TabItem("🖥️ Console", id=2):
                         status_output = gr.Textbox(label="AI Engine Status", lines=15, interactive=False, elem_classes=["terminal-box"])
                         with gr.Row():
                             file_output = gr.File(label="Download Video", visible=False)
                             video_preview = gr.HTML(label="Animation Preview", visible=False)
-            
+
+                # --- Global Action Buttons ---
+                with gr.Row():
+                    clear_btn = gr.Button("🗑️ Clear Inputs")
+                    generate_btn = gr.Button("🚀 GENERATE", variant="primary")
+
             # --- Sidebar ---
             with gr.Column(scale=1, min_width=100):
                 gr.Markdown("### 🛠️ Tools")
                 animation_definitions_btn = gr.Button("Animation Definitions")
                 settings_btn = gr.Button("Settings")
-                studio_console_btn = gr.Button("Studio Console")
+                studio_console_btn = gr.Button("Console")
 
 
         # --- Event Handling & Logic ---
