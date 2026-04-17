@@ -89,7 +89,6 @@ def create_ui():
                     # --- Tab 1: Animation Definitions ---
                     with gr.TabItem("🎬 Animation Definitions", id=0):
                         with gr.Group():
-                            name_input = gr.Textbox(label="Project Name", placeholder="e.g., Angel_Animation")
                             prompt_input = gr.Textbox(label="Scene Prompt", placeholder="e.g., A beautiful angel flying through the clouds", lines=3)
                             image_upload = gr.Image(label="Upload Initial Image (Optional)", type="filepath")
                             # Buttons are now moved outside this tab
@@ -140,7 +139,7 @@ def create_ui():
 
 
         # --- Event Handling & Logic ---
-        def run_generation(name, prompt, image, 
+        def run_generation(prompt, image, 
                            # Generator Settings
                            chunk_dur, overlap_dur, fade_out_dur,
                            # Animation Settings
@@ -172,7 +171,6 @@ def create_ui():
             
             # Assemble config from UI inputs
             gen_config = {
-                "name": name, 
                 "prompt": prompt, 
                 "image_path": image,
                 "generator_settings": {
@@ -259,14 +257,13 @@ def create_ui():
 
         generate_btn.click(
             fn=run_generation,
-            inputs=[name_input, prompt_input, image_upload] + setting_inputs,
+            inputs=[prompt_input, image_upload] + setting_inputs,
             outputs=[tabs, status_output, generate_btn, clear_btn, progress_bar, file_output, video_preview]
         )
 
         def clear_form():
             """Resets all input fields to their default state."""
             return {
-                name_input: "",
                 prompt_input: "",
                 image_upload: None,
                 status_output: "",
@@ -276,7 +273,7 @@ def create_ui():
             }
 
         clear_btn.click(fn=clear_form, outputs=[
-            name_input, prompt_input, image_upload, status_output, file_output, video_preview, progress_bar
+            prompt_input, image_upload, status_output, file_output, video_preview, progress_bar
         ])
 
         animation_definitions_btn.click(lambda: gr.update(selected=0), None, tabs)
