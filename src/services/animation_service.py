@@ -18,7 +18,7 @@ class AnimationService:
     Orchestrates the web interface and the AI engine.
     """
 
-    def __init__(self, output_dir: str = "outputs/animations"):
+    def __init__(self, output_dir: str):
         self.output_dir = output_dir
         os.makedirs(self.output_dir, exist_ok=True)
         self._lock = threading.Lock()
@@ -40,27 +40,45 @@ class AnimationService:
         with self._lock:
             start_time = time.time()
             try:
-                project_name = config.get('name', 'Unnamed_Animation')
+                # Extract base parameters
+                project_name = config.get('name')
                 prompt = config.get('prompt')
                 image_path = config.get('image_path')
+                
+                # Extract nested settings with defaults
+                animation_settings = config.get('animation_settings', {})
+                generator_settings = config.get('generator_settings', {})
+                output_dir_from_config = config.get('output_directory', self.output_dir)
 
-                if not all([prompt, image_path]):
-                    raise ValueError("Prompt and image are required.")
+                if not prompt:
+                    raise ValueError("A prompt is required.")
 
-                _log(f"Starting animation process for project: {project_name}")
-                _log(f"Input parameters: {config}")
+                _log(f"Starting animation process for project: {project_name or 'Unnamed'}")
+                _log(f"Using configuration: {config}")
 
-                input_image = Image.open(image_path).convert("RGB")
+                input_image = None
+                if image_path:
+                    input_image = Image.open(image_path).convert("RGB")
                 
                 timestamp = time.strftime("%Y%m%d_%H%M%S")
-                output_filename = f"{timestamp}_{project_name.replace(' ', '_')}.mp4"
-                output_path = os.path.join(self.output_dir, output_filename)
+                
+                if project_name:
+                    output_filename = f"{project_name}.mp4"
+                else:
+                    output_filename = f"{timestamp}_v01_gen.mp4"
 
-                # This will be a blocking call
+                # Ensure the output directory from the UI exists
+                os.makedirs(output_dir_from_config, exist_ok=True)
+                output_path = os.path.join(output_dir_from_config, output_filename)
+
+                # Pass all relevant settings to the animation script
                 generate_animation_scene(
                     prompt=prompt,
                     input_image=input_image,
-                    output_path=output_path
+                    output_path=output_path,
+                    log_stream=log_stream,
+                    animation_settings=animation_settings,
+                    generator_settings=generator_settings
                 )
 
                 end_time = time.time()

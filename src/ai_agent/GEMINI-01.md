@@ -24,7 +24,7 @@ The application must be designed with a clear separation of concerns, following 
         -   `Scene Prompt` (Textbox)
         -   `Upload Initial Image` (Image Upload)
     -   Display a "GENERATE" button to trigger the animation process.
-    -   Show a "Studio Console" tab with a textbox for real-time logging and a progress bar.
+    -   Show a "Console" tab with a textbox for real-time logging and a progress bar.
     -   Display the final generated video and a download link upon completion.
     -   Implement a "Clear Inputs" button to reset the form.
 -   **Styling:**
