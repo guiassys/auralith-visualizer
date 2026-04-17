@@ -42,6 +42,10 @@ def load_config():
                 "height": 576,
                 "fps": 12,
                 "ip_adapter_scale": 0.7
+            },
+            "server": {
+                "host": "0.0.0.0",
+                "port": 7860
             }
         }
 
@@ -286,9 +290,13 @@ def create_ui():
 interface = create_ui()
 
 if __name__ == "__main__":
+    server_config = config.get("server", {})
+    host = server_config.get("host", "0.0.0.0")
+    port = server_config.get("port", 7860)
+
     interface.launch(
-        server_name="0.0.0.0",
-        server_port=7860,
+        server_name=host,
+        server_port=port,
         show_error=True,
         theme=auralith_theme,
         css=custom_css
