@@ -75,7 +75,7 @@ def get_video_html(video_path):
 # --- UI DEFINITION ---
 def create_ui():
     """Builds the Gradio Blocks UI for Auralith Visualizer."""
-    with gr.Blocks(title="Auralith Visualizer") as demo:
+    with gr.Blocks(title="Auralith Visualizer", theme=auralith_theme, css=custom_css) as demo:
         # --- Header ---
         with gr.Row(elem_classes=["header"]):
             gr.Markdown("## 🎬 Auralith Visualizer", elem_id="logo")
@@ -297,7 +297,5 @@ if __name__ == "__main__":
     interface.launch(
         server_name=host,
         server_port=port,
-        show_error=True,
-        theme=auralith_theme,
-        css=custom_css
+        show_error=True
     )
