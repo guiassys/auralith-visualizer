@@ -92,7 +92,6 @@ def create_ui():
                         with gr.Group():
                             prompt_input = gr.Textbox(label="Scene Prompt", placeholder="e.g., A beautiful angel flying through the clouds", lines=3)
                             image_upload = gr.Image(label="Upload Initial Image (Optional)", type="filepath")
-                            # Buttons are now moved outside this tab
 
                     # --- Tab 2: Settings ---
                     with gr.TabItem("⚙️ Settings", id=1):
@@ -128,17 +127,12 @@ def create_ui():
                             file_output = gr.File(label="Download Video", visible=False)
                             video_preview = gr.HTML(label="Animation Preview", visible=False)
 
-                # --- Global Action Buttons ---
-                with gr.Row():
-                    clear_btn = gr.Button("🗑️ Clear Inputs")
-                    generate_btn = gr.Button("🚀 GENERATE", variant="primary")
-
             # --- Sidebar ---
             with gr.Column(scale=1, min_width=100):
-                gr.Markdown("### 🛠️ Tools")
-                animation_definitions_btn = gr.Button("Animation Definitions")
-                settings_btn = gr.Button("Settings")
-                studio_console_btn = gr.Button("Console")
+                gr.Markdown("### ⚡ Actions")
+                
+                clear_btn = gr.Button("🗑️ Clear Inputs")
+                generate_btn = gr.Button("🚀 GENERATE", variant="primary")
 
 
         # --- Event Handling & Logic ---
@@ -281,10 +275,6 @@ def create_ui():
         clear_btn.click(fn=clear_form, outputs=[
             prompt_input, image_upload, status_output, file_output, video_preview, progress_bar
         ])
-
-        animation_definitions_btn.click(lambda: gr.update(selected=0), None, tabs)
-        settings_btn.click(lambda: gr.update(selected=1), None, tabs)
-        studio_console_btn.click(lambda: gr.update(selected=2), None, tabs)
 
 
     return demo
