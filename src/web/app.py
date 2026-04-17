@@ -33,6 +33,7 @@ def load_config():
                 "fade-out_duration": 2
             },
             "output_directory": "outputs/animations",
+            "output_suffix": "v01_gen",
             "animation_settings": {
                 "total_frames": 32,
                 "frames_per_chunk": 16,
@@ -115,7 +116,9 @@ def create_ui():
                             ip_adapter_scale = gr.Slider(label="IP Adapter Scale", minimum=0, maximum=1, step=0.1, value=config["animation_settings"]["ip_adapter_scale"])
 
                         gr.Markdown("### Output Settings")
-                        output_directory_input = gr.Textbox(label="Output Directory", value=config["output_directory"])
+                        with gr.Row():
+                            output_directory_input = gr.Textbox(label="Output Directory", value=config.get("output_directory", "outputs"))
+                            output_suffix_input = gr.Textbox(label="File Suffix", value=config.get("output_suffix", "v01_gen"))
 
 
                     # --- Tab 3: Console & Output ---
@@ -145,7 +148,7 @@ def create_ui():
                            # Animation Settings
                            total_f, frames_per_c, guidance, steps, w, h, frame_rate, ip_scale,
                            # Output Settings
-                           output_dir_ui):
+                           output_dir_ui, output_suffix_ui):
             """Handles the animation generation process and UI updates."""
             if not prompt:
                 gr.Warning("A prompt is required to generate an animation.")
@@ -188,7 +191,8 @@ def create_ui():
                     "fps": frame_rate,
                     "ip_adapter_scale": ip_scale
                 },
-                "output_directory": output_dir_ui
+                "output_directory": output_dir_ui,
+                "output_suffix": output_suffix_ui
             }
 
             # Update service's output directory if it has changed
@@ -252,9 +256,11 @@ def create_ui():
             chunk_duration, overlap_duration, fade_out_duration,
             total_frames, frames_per_chunk, guidance_scale, num_inference_steps,
             width, height, fps, ip_adapter_scale,
-            output_directory_input
+            output_directory_input,
+            output_suffix_input
         ]
 
+        # Make sure the outputs array returns exactly what's yielded (tabs, status_output, generate_btn, clear_btn, progress_bar, file_output, video_preview)
         generate_btn.click(
             fn=run_generation,
             inputs=[prompt_input, image_upload] + setting_inputs,

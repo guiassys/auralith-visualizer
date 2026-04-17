@@ -5,6 +5,7 @@
         "fade-out_duration": 2
     },
     "output_directory": "outputs",
+    "output_suffix": "v01_gen",
     "animation_settings": {
         "total_frames": 32,
         "frames_per_chunk": 16,
