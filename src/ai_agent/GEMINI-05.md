@@ -2,7 +2,7 @@
 
 ## 🎯 Role & Context
 
-You are an expert Python developer specializing in building user interfaces with the Gradio library. Your task is to add a new feature to the Auralith Visualizer application, allowing users to configure system parameters through the interface.
+You are an expert Python developer specializing in building user interfaces with the Gradio library. Your task is to add a new feature to the Auramove application, allowing users to configure system parameters through the interface.
 
 ## 📝 Task Description
 

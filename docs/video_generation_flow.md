@@ -1,6 +1,6 @@
-# Auralith Visualizer - Video Generation Flow
+# Auramove - Video Generation Flow
 
-This document outlines the step-by-step process of how the Auralith Visualizer application generates an animated video from user inputs.
+This document outlines the step-by-step process of how the Auramove application generates an animated video from user inputs.
 
 ---
 

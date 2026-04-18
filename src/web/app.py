@@ -33,6 +33,7 @@ def load_config():
                 "fade-out_duration": 2
             },
             "output_directory": "outputs/animations",
+            "output_suffix": "v01_gen",
             "animation_settings": {
                 "total_frames": 32,
                 "frames_per_chunk": 16,
@@ -42,6 +43,10 @@ def load_config():
                 "height": 576,
                 "fps": 12,
                 "ip_adapter_scale": 0.7
+            },
+            "server": {
+                "host": "0.0.0.0",
+                "port": 7860
             }
         }
 
@@ -70,13 +75,11 @@ def get_video_html(video_path):
 
 # --- UI DEFINITION ---
 def create_ui():
-    """Builds the Gradio Blocks UI for Auralith Visualizer."""
-    with gr.Blocks(title="Auralith Visualizer") as demo:
+    """Builds the Gradio Blocks UI for Auramove."""
+    with gr.Blocks(title="Auramove", theme=auralith_theme, css=custom_css) as demo:
         # --- Header ---
         with gr.Row(elem_classes=["header"]):
-            gr.Markdown("## 🎬 Auralith Visualizer", elem_id="logo")
-            with gr.Column(scale=3):
-                progress_bar = gr.Slider(label="Rendering Progress", value=0, interactive=False, elem_classes=["glowing-progress"])
+            gr.Markdown("## 🎬 Auramove", elem_id="logo")
         
         with gr.Row():
             # --- Main Workspace ---
@@ -85,10 +88,8 @@ def create_ui():
                     # --- Tab 1: Animation Definitions ---
                     with gr.TabItem("🎬 Animation Definitions", id=0):
                         with gr.Group():
-                            name_input = gr.Textbox(label="Project Name", placeholder="e.g., Angel_Animation")
                             prompt_input = gr.Textbox(label="Scene Prompt", placeholder="e.g., A beautiful angel flying through the clouds", lines=3)
                             image_upload = gr.Image(label="Upload Initial Image (Optional)", type="filepath")
-                            # Buttons are now moved outside this tab
 
                     # --- Tab 2: Settings ---
                     with gr.TabItem("⚙️ Settings", id=1):
@@ -112,7 +113,9 @@ def create_ui():
                             ip_adapter_scale = gr.Slider(label="IP Adapter Scale", minimum=0, maximum=1, step=0.1, value=config["animation_settings"]["ip_adapter_scale"])
 
                         gr.Markdown("### Output Settings")
-                        output_directory_input = gr.Textbox(label="Output Directory", value=config["output_directory"])
+                        with gr.Row():
+                            output_directory_input = gr.Textbox(label="Output Directory", value=config.get("output_directory", "outputs"))
+                            output_suffix_input = gr.Textbox(label="File Suffix", value=config.get("output_suffix", "v01_gen"))
 
 
                     # --- Tab 3: Console & Output ---
@@ -122,27 +125,23 @@ def create_ui():
                             file_output = gr.File(label="Download Video", visible=False)
                             video_preview = gr.HTML(label="Animation Preview", visible=False)
 
-                # --- Global Action Buttons ---
-                with gr.Row():
-                    clear_btn = gr.Button("🗑️ Clear Inputs")
-                    generate_btn = gr.Button("🚀 GENERATE", variant="primary")
-
             # --- Sidebar ---
             with gr.Column(scale=1, min_width=100):
-                gr.Markdown("### 🛠️ Tools")
-                animation_definitions_btn = gr.Button("Animation Definitions")
-                settings_btn = gr.Button("Settings")
-                studio_console_btn = gr.Button("Console")
+                gr.Markdown("### ⚡ Actions")
+                
+                clear_btn = gr.Button("🗑️ Clear Inputs")
+                generate_btn = gr.Button("🚀 GENERATE", variant="primary")
+                progress_bar = gr.Slider(label="Rendering Progress", value=0, interactive=False, elem_classes=["glowing-progress"], visible=False)
 
 
         # --- Event Handling & Logic ---
-        def run_generation(name, prompt, image, 
+        def run_generation(prompt, image, 
                            # Generator Settings
                            chunk_dur, overlap_dur, fade_out_dur,
                            # Animation Settings
                            total_f, frames_per_c, guidance, steps, w, h, frame_rate, ip_scale,
                            # Output Settings
-                           output_dir_ui):
+                           output_dir_ui, output_suffix_ui):
             """Handles the animation generation process and UI updates."""
             if not prompt:
                 gr.Warning("A prompt is required to generate an animation.")
@@ -160,7 +159,7 @@ def create_ui():
                 status_output: "Initializing animation generation...",
                 generate_btn: gr.update(interactive=False, value="Generating..."),
                 clear_btn: gr.update(interactive=False),
-                progress_bar: gr.update(value=0, label="Rendering... 0%")
+                progress_bar: gr.update(value=0, label="Rendering... 0%", visible=True)
             }
 
             log_stream = LogStream()
@@ -168,7 +167,6 @@ def create_ui():
             
             # Assemble config from UI inputs
             gen_config = {
-                "name": name, 
                 "prompt": prompt, 
                 "image_path": image,
                 "generator_settings": {
@@ -186,7 +184,8 @@ def create_ui():
                     "fps": frame_rate,
                     "ip_adapter_scale": ip_scale
                 },
-                "output_directory": output_dir_ui
+                "output_directory": output_dir_ui,
+                "output_suffix": output_suffix_ui
             }
 
             # Update service's output directory if it has changed
@@ -231,7 +230,7 @@ def create_ui():
                     video_preview: gr.update(value=video_html, visible=True),
                     generate_btn: gr.update(interactive=True, value="🚀 GENERATE"),
                     clear_btn: gr.update(interactive=True),
-                    progress_bar: gr.update(value=1, label="Rendering Complete")
+                    progress_bar: gr.update(value=1, label="Rendering Complete", visible=False)
                 }
             else:
                 error_msg = result.get('error', "An unknown error occurred.") if result else "An unknown error occurred."
@@ -242,7 +241,7 @@ def create_ui():
                     status_output: "\n".join(log_history),
                     generate_btn: gr.update(interactive=True, value="🚀 GENERATE"),
                     clear_btn: gr.update(interactive=True),
-                    progress_bar: gr.update(value=0, label="Rendering Failed")
+                    progress_bar: gr.update(value=0, label="Rendering Failed", visible=False)
                 }
         
         # List of all setting components
@@ -250,34 +249,31 @@ def create_ui():
             chunk_duration, overlap_duration, fade_out_duration,
             total_frames, frames_per_chunk, guidance_scale, num_inference_steps,
             width, height, fps, ip_adapter_scale,
-            output_directory_input
+            output_directory_input,
+            output_suffix_input
         ]
 
+        # Make sure the outputs array returns exactly what's yielded (tabs, status_output, generate_btn, clear_btn, progress_bar, file_output, video_preview)
         generate_btn.click(
             fn=run_generation,
-            inputs=[name_input, prompt_input, image_upload] + setting_inputs,
+            inputs=[prompt_input, image_upload] + setting_inputs,
             outputs=[tabs, status_output, generate_btn, clear_btn, progress_bar, file_output, video_preview]
         )
 
         def clear_form():
             """Resets all input fields to their default state."""
             return {
-                name_input: "",
                 prompt_input: "",
                 image_upload: None,
                 status_output: "",
                 file_output: gr.update(visible=False),
                 video_preview: gr.update(value=None, visible=False),
-                progress_bar: gr.update(value=0, label="Rendering Progress"),
+                progress_bar: gr.update(value=0, label="Rendering Progress", visible=False),
             }
 
         clear_btn.click(fn=clear_form, outputs=[
-            name_input, prompt_input, image_upload, status_output, file_output, video_preview, progress_bar
+            prompt_input, image_upload, status_output, file_output, video_preview, progress_bar
         ])
-
-        animation_definitions_btn.click(lambda: gr.update(selected=0), None, tabs)
-        settings_btn.click(lambda: gr.update(selected=1), None, tabs)
-        studio_console_btn.click(lambda: gr.update(selected=2), None, tabs)
 
 
     return demo
@@ -286,10 +282,12 @@ def create_ui():
 interface = create_ui()
 
 if __name__ == "__main__":
+    server_config = config.get("server", {})
+    host = server_config.get("host", "0.0.0.0")
+    port = server_config.get("port", 7860)
+
     interface.launch(
-        server_name="0.0.0.0",
-        server_port=7860,
-        show_error=True,
-        theme=auralith_theme,
-        css=custom_css
+        server_name=host,
+        server_port=port,
+        show_error=True
     )

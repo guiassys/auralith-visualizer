@@ -2,7 +2,7 @@
 
 ## 🎯 Role & Context
 
-You are an expert Python developer specializing in code refactoring. Your task is to improve the flexibility and maintainability of the Auralith Visualizer application by removing hardcoded parameters and centralizing them into a configuration file.
+You are an expert Python developer specializing in code refactoring. Your task is to improve the flexibility and maintainability of the Auramove application by removing hardcoded parameters and centralizing them into a configuration file.
 
 ## 📝 Task Description
 

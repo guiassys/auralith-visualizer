@@ -1,4 +1,4 @@
-"""Script para executar a interface Web do Auralith Visualizer."""
+"""Script para executar a interface Web do Auramove."""
 
 import sys
 import os

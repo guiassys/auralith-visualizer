@@ -41,7 +41,6 @@ class AnimationService:
             start_time = time.time()
             try:
                 # Extract base parameters
-                project_name = config.get('name')
                 prompt = config.get('prompt')
                 image_path = config.get('image_path')
                 
@@ -49,11 +48,12 @@ class AnimationService:
                 animation_settings = config.get('animation_settings', {})
                 generator_settings = config.get('generator_settings', {})
                 output_dir_from_config = config.get('output_directory', self.output_dir)
+                output_suffix = config.get('output_suffix', 'v01_gen')
 
                 if not prompt:
                     raise ValueError("A prompt is required.")
 
-                _log(f"Starting animation process for project: {project_name or 'Unnamed'}")
+                _log("Starting animation process")
                 _log(f"Using configuration: {config}")
 
                 input_image = None
@@ -62,10 +62,7 @@ class AnimationService:
                 
                 timestamp = time.strftime("%Y%m%d_%H%M%S")
                 
-                if project_name:
-                    output_filename = f"{project_name}.mp4"
-                else:
-                    output_filename = f"{timestamp}_v01_gen.mp4"
+                output_filename = f"{timestamp}_{output_suffix}.mp4"
 
                 # Ensure the output directory from the UI exists
                 os.makedirs(output_dir_from_config, exist_ok=True)
