@@ -23,7 +23,7 @@ def main():
 
     try:
         from src.web.app import interface
-        print("🚀 Iniciando Auralith Visualizer...")
+        print("🚀 Iniciando Auramove...")
         print("📱 Acesse: http://localhost:7861")
         print("❌ Pressione Ctrl+C para parar")
 

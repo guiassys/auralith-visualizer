@@ -75,13 +75,11 @@ def get_video_html(video_path):
 
 # --- UI DEFINITION ---
 def create_ui():
-    """Builds the Gradio Blocks UI for Auralith Visualizer."""
-    with gr.Blocks(title="Auralith Visualizer", theme=auralith_theme, css=custom_css) as demo:
+    """Builds the Gradio Blocks UI for Auramove."""
+    with gr.Blocks(title="Auramove", theme=auralith_theme, css=custom_css) as demo:
         # --- Header ---
         with gr.Row(elem_classes=["header"]):
-            gr.Markdown("## 🎬 Auralith Visualizer", elem_id="logo")
-            with gr.Column(scale=3):
-                progress_bar = gr.Slider(label="Rendering Progress", value=0, interactive=False, elem_classes=["glowing-progress"])
+            gr.Markdown("## 🎬 Auramove", elem_id="logo")
         
         with gr.Row():
             # --- Main Workspace ---
@@ -133,6 +131,7 @@ def create_ui():
                 
                 clear_btn = gr.Button("🗑️ Clear Inputs")
                 generate_btn = gr.Button("🚀 GENERATE", variant="primary")
+                progress_bar = gr.Slider(label="Rendering Progress", value=0, interactive=False, elem_classes=["glowing-progress"], visible=False)
 
 
         # --- Event Handling & Logic ---
@@ -160,7 +159,7 @@ def create_ui():
                 status_output: "Initializing animation generation...",
                 generate_btn: gr.update(interactive=False, value="Generating..."),
                 clear_btn: gr.update(interactive=False),
-                progress_bar: gr.update(value=0, label="Rendering... 0%")
+                progress_bar: gr.update(value=0, label="Rendering... 0%", visible=True)
             }
 
             log_stream = LogStream()
@@ -231,7 +230,7 @@ def create_ui():
                     video_preview: gr.update(value=video_html, visible=True),
                     generate_btn: gr.update(interactive=True, value="🚀 GENERATE"),
                     clear_btn: gr.update(interactive=True),
-                    progress_bar: gr.update(value=1, label="Rendering Complete")
+                    progress_bar: gr.update(value=1, label="Rendering Complete", visible=False)
                 }
             else:
                 error_msg = result.get('error', "An unknown error occurred.") if result else "An unknown error occurred."
@@ -242,7 +241,7 @@ def create_ui():
                     status_output: "\n".join(log_history),
                     generate_btn: gr.update(interactive=True, value="🚀 GENERATE"),
                     clear_btn: gr.update(interactive=True),
-                    progress_bar: gr.update(value=0, label="Rendering Failed")
+                    progress_bar: gr.update(value=0, label="Rendering Failed", visible=False)
                 }
         
         # List of all setting components
@@ -269,7 +268,7 @@ def create_ui():
                 status_output: "",
                 file_output: gr.update(visible=False),
                 video_preview: gr.update(value=None, visible=False),
-                progress_bar: gr.update(value=0, label="Rendering Progress"),
+                progress_bar: gr.update(value=0, label="Rendering Progress", visible=False),
             }
 
         clear_btn.click(fn=clear_form, outputs=[
