@@ -1,6 +1,6 @@
-# AI Engineering Prompt: Recreate the Auralith Visualizer Application
+# AI Engineering Prompt: Recreate the Auramove Application
 
-You are an expert AI software engineer specializing in Python, generative AI, and modern application architecture. Your task is to generate a complete, functional, and well-structured Python application based on the detailed requirements below. The application, named "Auralith Visualizer," is a tool for creating animations from images and text prompts.
+You are an expert AI software engineer specializing in Python, generative AI, and modern application architecture. Your task is to generate a complete, functional, and well-structured Python application based on the detailed requirements below. The application, named "Auramove," is a tool for creating animations from images and text prompts.
 
 ---
 
@@ -18,7 +18,7 @@ The application must be designed with a clear separation of concerns, following 
 -   **Technology:** Gradio
 -   **File:** `app.py`
 -   **Functionality:**
-    -   Provide a user-friendly interface with the title "Auralith Visualizer".
+    -   Provide a user-friendly interface with the title "Auramove".
     -   Include input fields for:
         -   `Project Name` (Textbox)
         -   `Scene Prompt` (Textbox)
@@ -111,4 +111,4 @@ The application must be designed with a clear separation of concerns, following 
 
 ## 🚀 Final Output
 
-Provide the complete, functional, and ready-to-use source code for the entire Auralith Visualizer application, structured according to the specified architecture.
+Provide the complete, functional, and ready-to-use source code for the entire Auramove application, structured according to the specified architecture.

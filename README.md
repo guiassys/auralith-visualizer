@@ -1,6 +1,6 @@
-# 🎧 Auralith Visualizer
+# 🎧 Auramove
 
-AI-powered Python tool to create stunning animations from images and text prompts. Auralith Visualizer is designed to be an intuitive platform for artists and creators to bring their static images to life.
+AI-powered Python tool to create stunning animations from images and text prompts. Auramove is designed to be an intuitive platform for artists and creators to bring their static images to life.
 
 ---
 
@@ -17,7 +17,7 @@ To create an automated pipeline capable of:
 
 # 🏗️ System Architecture
 
-Auralith Visualizer is built as a modular, AI-based multimedia generation pipeline.
+Auramove is built as a modular, AI-based multimedia generation pipeline.
 
 ## 🔹 System Layers
 
@@ -130,7 +130,7 @@ auralith-visualizer/
 
 # 🌌 Vision
 
-Auralith Visualizer is designed to be a scalable system for creating rich, animated worlds. The current implementation is the first step toward a comprehensive platform where music, narrative, and visual identity coexist to create immersive experiences.
+Auramove is designed to be a scalable system for creating rich, animated worlds. The current implementation is the first step toward a comprehensive platform where music, narrative, and visual identity coexist to create immersive experiences.
 
 ---
 

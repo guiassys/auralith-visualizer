@@ -1,6 +1,6 @@
-# Technical Specification: Auralith Visualizer Application Enhancements
+# Technical Specification: Auramove Application Enhancements
 
-This document details the technical requirements to fix and enhance the Auralith Visualizer application, focusing on issues related to interface functionality, video output quality, and user prompt adherence.
+This document details the technical requirements to fix and enhance the Auramove application, focusing on issues related to interface functionality, video output quality, and user prompt adherence.
 
 ---
 

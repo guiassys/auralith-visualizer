@@ -2,7 +2,7 @@
 
 ## 🎯 Role & Context
 
-You are an expert software engineer tasked with refactoring the animation output system of the Auralith Visualizer application. Your goal is to enhance flexibility and naming consistency for generated audio assets by eliminating hardcoded paths and standardizing file naming conventions.
+You are an expert software engineer tasked with refactoring the animation output system of the Auramove application. Your goal is to enhance flexibility and naming consistency for generated audio assets by eliminating hardcoded paths and standardizing file naming conventions.
 
 ## 📝 Task Description
 
@@ -94,7 +94,7 @@ Refactor the existing system to achieve the following objectives:
 
 ## 🚀 Final Output
 
-Provide the complete, functional, and ready-to-use source code for the entire Auralith Visualizer application, structured according to the specified architecture. This includes:
+Provide the complete, functional, and ready-to-use source code for the entire Auramove application, structured according to the specified architecture. This includes:
 
 1.  **Updated `config.json`**: Reflecting the new `output_directory` parameter.
 2.  **Modified application logic**: Any necessary changes in Python files to read the configuration, replace hardcoded paths, ensure directory existence, and implement the new file naming convention.
